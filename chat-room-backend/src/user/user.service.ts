@@ -9,7 +9,6 @@ export class UserService {
   private prisma: PrismaService;
 
   async create(data: Prisma.UserCreateInput) {
-    this.prisma.onModuleInit.
       return await this.prisma.user.create({
           data,
           select: {
