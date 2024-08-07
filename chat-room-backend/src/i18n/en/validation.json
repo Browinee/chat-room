@@ -1,0 +1,9 @@
+{
+  "username_required":"The username cannot be empty",
+  "nickName_required":"The nickName cannot be empty",
+  "password_required":"Password cannot be empty",
+  "password_min_length":"The password cannot be less than {num} characters",
+  "email_required":"The email cannot be empty",
+  "email_format_invalid":"The email format is invalid",
+  "captcha_required":"The captcha cannot be empty"
+}

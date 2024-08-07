@@ -1,0 +1,9 @@
+{
+  "username_required": "用戶名不能為空",
+  "nickName_required": "暱稱不能為空",
+  "password_required": "密碼不能為空",
+  "password_min_length": "密碼不能少於 {num} 個字符",
+  "email_required": "電子郵件不能為空",
+  "email_format_invalid": "電子郵件格式無效",
+  "captcha_required": "驗證碼不能為空"
+}
