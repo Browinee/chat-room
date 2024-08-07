@@ -8,7 +8,6 @@ export class UserController {
 
   @Post('register')
   async register(@Body() registerUser: RegisterUserDto) {
-    const {captcha, ...rest} = registerUser
-      return await this.userService.create(rest);
+    return await this.userService.register(registerUser);
   }
 }
