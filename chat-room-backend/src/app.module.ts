@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
+import { RedisModule } from './redis/redis.module';
 import * as path from 'path';
 
 @Module({
@@ -22,6 +23,7 @@ import * as path from 'path';
 
       ],
     }),
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
