@@ -22,10 +22,10 @@ export class UserService {
   async register(user: RegisterUserDto) {
     const captcha = await this.redisService.get(`captcha_${user.email}`);
     if (!captcha) {
-      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
+      throw new HttpException('captcha is overdue', HttpStatus.BAD_REQUEST);
     }
     if (user.captcha !== captcha) {
-      throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST);
+      throw new HttpException('captcha is not correct', HttpStatus.BAD_REQUEST);
     }
     const existedUser = await this.prisma.user.findUnique({
       where:{
@@ -33,7 +33,7 @@ export class UserService {
       }
     })
     if(existedUser){
-      throw new HttpException('用户名已存在', HttpStatus.BAD_REQUEST);
+      throw new HttpException('user existed', HttpStatus.BAD_REQUEST);
     }
     try {
       return await this.prisma.user.create({
