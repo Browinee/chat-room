@@ -5,7 +5,7 @@ import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new I18nValidationPipe());
+  app.useGlobalPipes(new I18nValidationPipe({ transform: true}));
   app.useGlobalFilters(new I18nValidationExceptionFilter({
     detailedErrors: false
   }));

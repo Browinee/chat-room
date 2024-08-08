@@ -9,11 +9,12 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { RedisService } from 'src/redis/redis.service';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UserService {
   @Inject(PrismaService)
-  private prisma: PrismaService;
+  private prismaService: PrismaService;
   @Inject(RedisService)
   private redisService: RedisService;
 
@@ -27,7 +28,7 @@ export class UserService {
     if (user.captcha !== captcha) {
       throw new HttpException('captcha is not correct', HttpStatus.BAD_REQUEST);
     }
-    const existedUser = await this.prisma.user.findUnique({
+    const existedUser = await this.prismaService.user.findUnique({
       where:{
         username: user.username
       }
@@ -36,7 +37,7 @@ export class UserService {
       throw new HttpException('user existed', HttpStatus.BAD_REQUEST);
     }
     try {
-      return await this.prisma.user.create({
+      return await this.prismaService.user.create({
         data: {
           username: user.username,
           password: user.password,
@@ -58,11 +59,30 @@ export class UserService {
     }
   }
   async create(data: Prisma.UserCreateInput) {
-    return await this.prisma.user.create({
+    return await this.prismaService.user.create({
       data,
       select: {
         id: true,
       },
     });
   }
+  async login(loginUserDto: LoginUserDto) {
+    const foundUser = await this.prismaService.user.findUnique({
+      where: {
+        username: loginUserDto.username
+      }
+    });
+
+    if(!foundUser) {
+        throw new HttpException('user not existed', HttpStatus.BAD_REQUEST);
+    }
+
+    if(foundUser.password !== loginUserDto.password) {
+        throw new HttpException('wrong password', HttpStatus.BAD_REQUEST);
+    }
+
+    delete foundUser.password;
+    return foundUser;
+  }
+
 }
