@@ -67,4 +67,27 @@ export class UserController {
   async updatePassword(@Body() passwordDto: UpdateUserPasswordDto) {
     return this.userService.updatePassword(passwordDto);
   }
+
+  @Get('update_captcha')
+  @RequireLogin()
+  async updateCaptcha(@UserInfo('userId') userId: number) {
+    const { email: address } = await this.userService.findUserDetailById(
+      userId,
+    );
+
+    const code = Math.random().toString().slice(2, 8);
+
+    await this.redisService.set(
+      `update_user_captcha_${address}`,
+      code,
+      10 * 60,
+    );
+
+    // await this.emailService.sendMail({
+    //   to: address,
+    //   subject: 'xxx',
+    //   html: `<p>verification code:  ${code}</p>`,
+    // });
+    return 'send success';
+  }
 }
