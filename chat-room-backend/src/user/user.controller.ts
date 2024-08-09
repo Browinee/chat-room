@@ -128,4 +128,9 @@ export class UserController {
     // });
     return '发送成功';
   }
+  @Get('friendship')
+  @RequireLogin()
+  async friendship(@UserInfo('userId') userId: number) {
+    return this.userService.getFriendship(userId);
+  }
 }
