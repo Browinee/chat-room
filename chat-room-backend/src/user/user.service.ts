@@ -10,6 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { RedisService } from 'src/redis/redis.service';
 import { LoginUserDto } from './dto/login-user.dto';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @Injectable()
 export class UserService {
@@ -29,11 +30,11 @@ export class UserService {
       throw new HttpException('captcha is not correct', HttpStatus.BAD_REQUEST);
     }
     const existedUser = await this.prismaService.user.findUnique({
-      where:{
-        username: user.username
-      }
-    })
-    if(existedUser){
+      where: {
+        username: user.username,
+      },
+    });
+    if (existedUser) {
       throw new HttpException('user existed', HttpStatus.BAD_REQUEST);
     }
     try {
@@ -42,7 +43,7 @@ export class UserService {
           username: user.username,
           password: user.password,
           nickName: user.nickName,
-          email: user.email
+          email: user.email,
         },
         select: {
           id: true,
@@ -50,10 +51,10 @@ export class UserService {
           nickName: true,
           email: true,
           headPic: true,
-          createTime: true
-        }
+          createTime: true,
+        },
       });
-    } catch(e) {
+    } catch (e) {
       this.logger.error(e, UserService);
       return null;
     }
@@ -69,20 +70,69 @@ export class UserService {
   async login(loginUserDto: LoginUserDto) {
     const foundUser = await this.prismaService.user.findUnique({
       where: {
-        username: loginUserDto.username
-      }
+        username: loginUserDto.username,
+      },
     });
 
-    if(!foundUser) {
-        throw new HttpException('user not existed', HttpStatus.BAD_REQUEST);
+    if (!foundUser) {
+      throw new HttpException('user not existed', HttpStatus.BAD_REQUEST);
     }
 
-    if(foundUser.password !== loginUserDto.password) {
-        throw new HttpException('wrong password', HttpStatus.BAD_REQUEST);
+    if (foundUser.password !== loginUserDto.password) {
+      throw new HttpException('wrong password', HttpStatus.BAD_REQUEST);
     }
 
     delete foundUser.password;
     return foundUser;
   }
 
+  async findUserDetailById(userId: number) {
+    return await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        username: true,
+        nickName: true,
+        email: true,
+        headPic: true,
+        createTime: true,
+      },
+    });
+  }
+  async updatePassword(passwordDto: UpdateUserPasswordDto) {
+    const captcha = await this.redisService.get(
+      `update_password_captcha_${passwordDto.email}`,
+    );
+
+    if (!captcha) {
+      throw new HttpException('Invalid captcha', HttpStatus.BAD_REQUEST);
+    }
+
+    if (passwordDto.captcha !== captcha) {
+      throw new HttpException('captcha is not correct', HttpStatus.BAD_REQUEST);
+    }
+
+    const foundUser = await this.prismaService.user.findUnique({
+      where: {
+        username: passwordDto.username,
+      },
+    });
+
+    foundUser.password = passwordDto.password;
+
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: foundUser.id,
+        },
+        data: foundUser,
+      });
+      return 'password updated';
+    } catch (e) {
+      this.logger.error(e, UserService);
+      return 'password update failed';
+    }
+  }
 }

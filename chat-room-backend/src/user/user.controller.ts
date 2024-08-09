@@ -1,14 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Inject } from '@nestjs/common';
-import { UserService } from './user.service';
-import { RegisterUserDto } from './dto/register-user.dto';
+import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/email/email.service';
 import { RedisService } from 'src/redis/redis.service';
 import { LoginUserDto } from './dto/login-user.dto';
-import { JwtService } from '@nestjs/jwt';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { UserService } from './user.service';
+import { RequireLogin, UserInfo } from 'src/common/decorators';
 
 @Controller('user')
 export class UserController {
-
   @Inject(EmailService)
   private emailService: EmailService;
 
@@ -25,10 +26,9 @@ export class UserController {
     return await this.userService.register(registerUser);
   }
 
-
-@Get('register-captcha')
-async captcha(@Query('address') address: string) {
-    const code = Math.random().toString().slice(2,8);
+  @Get('register-captcha')
+  async captcha(@Query('address') address: string) {
+    const code = Math.random().toString().slice(2, 8);
 
     await this.redisService.set(`captcha_${address}`, code, 5 * 60);
 
@@ -38,22 +38,33 @@ async captcha(@Query('address') address: string) {
     //   html: `<p>你的注册验证码是 ${code}</p>`
     // });
     return 'success';
-}
+  }
 
-@Post('login')
-async userLogin(@Body() loginUser: LoginUserDto) {
+  @Post('login')
+  async userLogin(@Body() loginUser: LoginUserDto) {
     const user = await this.userService.login(loginUser);
     return {
       user,
-      token: this.jwtService.sign({
-        userId: user.id,
-        username: user.username
-      }, {
-        expiresIn: '7d'
-      })
+      token: this.jwtService.sign(
+        {
+          userId: user.id,
+          username: user.username,
+        },
+        {
+          expiresIn: '7d',
+        },
+      ),
     };
-}
+  }
 
+  @Get('')
+  @RequireLogin()
+  async info(@UserInfo('userId') userId: number) {
+    return this.userService.findUserDetailById(userId);
+  }
 
-
+  @Post('update_password')
+  async updatePassword(@Body() passwordDto: UpdateUserPasswordDto) {
+    return this.userService.updatePassword(passwordDto);
+  }
 }
