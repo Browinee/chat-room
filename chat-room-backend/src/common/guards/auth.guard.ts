@@ -1,4 +1,10 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -11,13 +17,12 @@ interface JwtUserData {
 
 declare module 'express' {
   interface Request {
-    user: JwtUserData
+    user: JwtUserData;
   }
 }
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-
   @Inject()
   private reflector: Reflector;
 
@@ -31,29 +36,29 @@ export class AuthGuard implements CanActivate {
 
     const requireLogin = this.reflector.getAllAndOverride('require-login', [
       context.getClass(),
-      context.getHandler()
+      context.getHandler(),
     ]);
 
-    if(!requireLogin) {
+    if (!requireLogin) {
       return true;
     }
 
     const authorization = request.headers.authorization;
 
-    if(!authorization) {
+    if (!authorization) {
       throw new UnauthorizedException('user not login');
     }
 
-    try{
+    try {
       const token = authorization.split(' ')[1];
       const data = this.jwtService.verify<JwtUserData>(token);
 
       request.user = {
         userId: data.userId,
         username: data.username,
-      }
+      };
       return true;
-    } catch(e) {
+    } catch (e) {
       throw new UnauthorizedException('invalid token');
     }
   }
