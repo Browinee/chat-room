@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/email/email.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -7,6 +16,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UserService } from './user.service';
 import { RequireLogin, UserInfo } from 'src/common/decorators';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -49,6 +59,7 @@ export class UserController {
         {
           userId: user.id,
           username: user.username,
+          email: user.email,
         },
         {
           expiresIn: '7d',
@@ -61,6 +72,16 @@ export class UserController {
   @RequireLogin()
   async info(@UserInfo('userId') userId: number) {
     return this.userService.findUserDetailById(userId);
+  }
+
+  @Put()
+  @RequireLogin()
+  async updateInfo(
+    @UserInfo('userId') userId: number,
+    @UserInfo('email') email: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await this.userService.update(userId, email, updateUserDto);
   }
 
   @Post('update_password')
@@ -89,5 +110,22 @@ export class UserController {
     //   html: `<p>verification code:  ${code}</p>`,
     // });
     return 'send success';
+  }
+
+  @Get('captcha')
+  async getCaptcha(@Query('address') address: string) {
+    if (!address) {
+      throw new BadRequestException('email is required');
+    }
+    const code = Math.random().toString().slice(2, 8);
+
+    await this.redisService.set(`update_user_${address}`, code, 10 * 60);
+
+    // await this.emailService.sendMail({
+    //   to: address,
+    //   subject: '',
+    //   html: `<p> ${code}</p>`,
+    // });
+    return '发送成功';
   }
 }

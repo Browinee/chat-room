@@ -11,6 +11,7 @@ import { Prisma } from '@prisma/client';
 import { RedisService } from 'src/redis/redis.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -133,6 +134,49 @@ export class UserService {
     } catch (e) {
       this.logger.error(e, UserService);
       return 'password update failed';
+    }
+  }
+
+  async update(
+    userId: number,
+    userEmail: string,
+    updateUserDto: UpdateUserDto,
+  ) {
+    console.log('email', userEmail);
+    const captcha = await this.redisService.get(`update_user_${userEmail}`);
+
+    if (!captcha) {
+      throw new HttpException('invalid captcha', HttpStatus.BAD_REQUEST);
+    }
+
+    if (updateUserDto.captcha !== captcha) {
+      throw new HttpException('captcha is not correct', HttpStatus.BAD_REQUEST);
+    }
+
+    const foundUser = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (updateUserDto.nickName) {
+      foundUser.nickName = updateUserDto.nickName;
+    }
+    if (updateUserDto.headPic) {
+      foundUser.headPic = updateUserDto.headPic;
+    }
+
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: foundUser,
+      });
+      return '用户信息修改成功';
+    } catch (e) {
+      this.logger.error(e, UserService);
+      return '用户信息修改成功';
     }
   }
 }
