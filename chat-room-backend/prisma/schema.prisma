@@ -32,13 +32,18 @@ model Friendship {
   @@id([userId, friendId])
 }
 
+enum FriendRequestStatus {
+  PENDING // 0 表示请求中
+  ACCEPTED // 1 表示已同意
+  REJECTED // 2 表示已拒絕
+}
+
 model FriendRequest {
-  id         Int      @id @default(autoincrement())
+  id         Int                 @id @default(autoincrement())
   fromUserId Int
   toUserId   Int
-  reason     String   @db.VarChar(100)
-  // 狀態, 0.请求中, 1.已同意, 2.已拒绝
-  status     Int // 請求狀態：0表示請求中，1表示已同意，2表示已拒絕
-  createTime DateTime @default(now())
-  updateTime DateTime @updatedAt
+  reason     String              @db.VarChar(100)
+  status     FriendRequestStatus @default(PENDING) // 使用 Enum 類型
+  createTime DateTime            @default(now())
+  updateTime DateTime            @updatedAt
 }

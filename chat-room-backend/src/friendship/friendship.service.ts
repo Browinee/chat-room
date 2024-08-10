@@ -1,5 +1,6 @@
 import { FriendshipAddDto } from './dto/add-friendship.dto';
 import { Inject, Injectable } from '@nestjs/common';
+import { FriendRequestStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -21,7 +22,7 @@ export class FriendshipService {
         fromUserId: userId,
         toUserId: friendAddDto.friendId,
         reason: friendAddDto.reason,
-        status: 0,
+        status: FriendRequestStatus.PENDING,
       },
     });
   }
@@ -33,10 +34,10 @@ export class FriendshipService {
       where: {
         fromUserId: userId,
         toUserId: friendId,
-        status: 0,
+        status: FriendRequestStatus.PENDING,
       },
       data: {
-        status: 1,
+        status: FriendRequestStatus.ACCEPTED,
       },
     });
 
@@ -63,10 +64,10 @@ export class FriendshipService {
       where: {
         fromUserId: friendId,
         toUserId: userId,
-        status: 0,
+        status: FriendRequestStatus.PENDING,
       },
       data: {
-        status: 2,
+        status: FriendRequestStatus.REJECTED,
       },
     });
     return '已拒绝';
