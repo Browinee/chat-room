@@ -31,3 +31,14 @@ model Friendship {
 
   @@id([userId, friendId])
 }
+
+model FriendRequest {
+  id         Int      @id @default(autoincrement())
+  fromUserId Int
+  toUserId   Int
+  reason     String   @db.VarChar(100)
+  // 狀態, 0.请求中, 1.已同意, 2.已拒绝
+  status     Int // 請求狀態：0表示請求中，1表示已同意，2表示已拒絕
+  createTime DateTime @default(now())
+  updateTime DateTime @updatedAt
+}

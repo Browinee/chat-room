@@ -23,13 +23,13 @@ export class UserService {
   private logger = new Logger();
 
   async register(user: RegisterUserDto) {
-    const captcha = await this.redisService.get(`captcha_${user.email}`);
-    if (!captcha) {
-      throw new HttpException('captcha is overdue', HttpStatus.BAD_REQUEST);
-    }
-    if (user.captcha !== captcha) {
-      throw new HttpException('captcha is not correct', HttpStatus.BAD_REQUEST);
-    }
+    // const captcha = await this.redisService.get(`captcha_${user.email}`);
+    // if (!captcha) {
+    //   throw new HttpException('captcha is overdue', HttpStatus.BAD_REQUEST);
+    // }
+    // if (user.captcha !== captcha) {
+    //   throw new HttpException('captcha is not correct', HttpStatus.BAD_REQUEST);
+    // }
     const existedUser = await this.prismaService.user.findUnique({
       where: {
         username: user.username,
