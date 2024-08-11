@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Param,
   Post,
   Query,
 } from '@nestjs/common';
@@ -43,5 +44,13 @@ export class ChatroomController {
       throw new BadRequestException('chatroomId can not be empty');
     }
     return this.chatroomService.members(chatroomId);
+  }
+
+  @Get('info/:id')
+  async info(@Param('id') id: number) {
+    if (!id) {
+      throw new BadRequestException('chatroomId can not be empty');
+    }
+    return this.chatroomService.info(id);
   }
 }

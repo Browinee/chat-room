@@ -70,7 +70,24 @@ export class ChatroomService {
         createTime: true,
       },
     });
-    return chatrooms;
+    const res = [];
+    for (let i = 0; i < chatrooms.length; i++) {
+      const userIds = await this.prismaService.userChatroom.findMany({
+        where: {
+          chatroomId: chatrooms[i].id,
+        },
+        select: {
+          userId: true,
+        },
+      });
+      res.push({
+        ...chatrooms[i],
+        userCount: userIds.length,
+        userIds: userIds.map((item) => item.userId),
+      });
+    }
+
+    return res;
   }
 
   async members(chatroomId: number) {
@@ -88,7 +105,27 @@ export class ChatroomService {
           in: memberIds.map((item) => item.userId),
         },
       },
+      select: {
+        id: true,
+        username: true,
+        nickName: true,
+        headPic: true,
+        createTime: true,
+        email: true,
+      },
     });
     return members;
+  }
+  async info(chatroomId: number) {
+    const chatroom = await this.prismaService.chatroom.findUnique({
+      where: {
+        id: chatroomId,
+      },
+    });
+    const members = await this.members(chatroomId);
+    return {
+      ...chatroom,
+      users: members,
+    };
   }
 }
