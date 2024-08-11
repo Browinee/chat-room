@@ -36,4 +36,12 @@ export class ChatroomController {
     }
     return this.chatroomService.list(userId);
   }
+
+  @Get('members')
+  async members(@Query('chatroomId') chatroomId: number) {
+    if (!chatroomId) {
+      throw new BadRequestException('chatroomId can not be empty');
+    }
+    return this.chatroomService.members(chatroomId);
+  }
 }

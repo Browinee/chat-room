@@ -72,4 +72,23 @@ export class ChatroomService {
     });
     return chatrooms;
   }
+
+  async members(chatroomId: number) {
+    const memberIds = await this.prismaService.userChatroom.findMany({
+      where: {
+        chatroomId,
+      },
+      select: {
+        userId: true,
+      },
+    });
+    const members = await this.prismaService.user.findMany({
+      where: {
+        id: {
+          in: memberIds.map((item) => item.userId),
+        },
+      },
+    });
+    return members;
+  }
 }
