@@ -12,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/auth.guard';
 import { FriendshipModule } from './friendship/friendship.module';
+import { ChatroomModule } from './chatroom/chatroom.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { FriendshipModule } from './friendship/friendship.module';
       },
     }),
     FriendshipModule,
+    ChatroomModule,
   ],
   controllers: [AppController],
   providers: [
