@@ -47,4 +47,29 @@ export class ChatroomService {
     });
     return 'Group chatroom created successfully';
   }
+
+  async list(userId: number) {
+    const chatroomIds = await this.prismaService.userChatroom.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        chatroomId: true,
+      },
+    });
+    const chatrooms = await this.prismaService.chatroom.findMany({
+      where: {
+        id: {
+          in: chatroomIds.map((item) => item.chatroomId),
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        createTime: true,
+      },
+    });
+    return chatrooms;
+  }
 }

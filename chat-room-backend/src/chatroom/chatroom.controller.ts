@@ -28,4 +28,12 @@ export class ChatroomController {
   async group(@Query('name') name: string, @UserInfo('userId') userId: number) {
     return this.chatroomService.createGroupChatroom(name, userId);
   }
+
+  @Get('list')
+  async list(@UserInfo('userId') userId: number) {
+    if (!userId) {
+      throw new BadRequestException('userId can not be empty');
+    }
+    return this.chatroomService.list(userId);
+  }
 }
