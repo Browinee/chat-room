@@ -53,4 +53,26 @@ export class ChatroomController {
     }
     return this.chatroomService.info(id);
   }
+
+  @Get('join/:id')
+  async join(@Param('id') id: number, @Query('joinUserId') joinUserId: number) {
+    if (!id) {
+      throw new BadRequestException('id can not be empty');
+    }
+    if (!joinUserId) {
+      throw new BadRequestException('joinUserId can not be empty');
+    }
+    return this.chatroomService.join(id, joinUserId);
+  }
+
+  @Get('quit/:id')
+  async quit(@Param('id') id: number, @Query('quitUserId') quitUserId: number) {
+    if (!id) {
+      throw new BadRequestException('id can not be empty');
+    }
+    if (!quitUserId) {
+      throw new BadRequestException('quitUserId can not be empty');
+    }
+    return this.chatroomService.quit(id, quitUserId);
+  }
 }

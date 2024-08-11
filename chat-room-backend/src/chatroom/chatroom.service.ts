@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -127,5 +127,54 @@ export class ChatroomService {
       ...chatroom,
       users: members,
     };
+  }
+  async join(chatroomId: number, joinUserId: number) {
+    const chatroom = await this.prismaService.chatroom.findUnique({
+      where: {
+        id: chatroomId,
+      },
+    });
+
+    if (chatroom.type === false) {
+      throw new BadRequestException('one-to-one chatroom can not be joined');
+    }
+    const memebers = await this.members(chatroomId);
+    const userIds = memebers.map((item) => item.id);
+    if (userIds.includes(joinUserId)) {
+      throw new BadRequestException('user already in chatroom');
+    }
+
+    await this.prismaService.userChatroom.create({
+      data: {
+        userId: joinUserId,
+        chatroomId,
+      },
+    });
+    return 'join success';
+  }
+  async quit(chatroomId: number, joinUserId: number) {
+    const chatroom = await this.prismaService.chatroom.findUnique({
+      where: {
+        id: chatroomId,
+      },
+    });
+
+    if (chatroom.type === false) {
+      throw new BadRequestException('one-to-one chatroom can not be quit');
+    }
+    const memebers = await this.members(chatroomId);
+    const userIds = memebers.map((item) => item.id);
+    if (!userIds.includes(joinUserId)) {
+      throw new BadRequestException('user already quit chatroom');
+    }
+
+    await this.prismaService.userChatroom.deleteMany({
+      where: {
+        userId: joinUserId,
+        chatroomId,
+      },
+    });
+
+    return `User: ${joinUserId} quit group room: ${chatroomId} success`;
   }
 }
