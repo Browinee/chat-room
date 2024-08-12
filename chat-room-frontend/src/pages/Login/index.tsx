@@ -1,25 +1,12 @@
 import { Button, Checkbox, Form, Input, message } from "antd";
 import "./index.css";
 import { login } from "../../api/login";
+import { useNavigate } from "react-router-dom";
 
 interface LoginUser {
   username: string;
   password: string;
 }
-
-const onFinish = async (values: LoginUser) => {
-  try {
-    const res = await login(values.username, values.password);
-    if (res.status === 201 || res.status === 200) {
-      message.success("Login success");
-
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("userInfo", JSON.stringify(res.data.user));
-    }
-  } catch (e: any) {
-    message.error(e.response?.data?.message || "please try later");
-  }
-};
 
 const layout1 = {
   labelCol: { span: 6 },
@@ -32,6 +19,21 @@ const layout2 = {
 };
 
 export function Login() {
+  const navigate = useNavigate();
+  const onFinish = async (values: LoginUser) => {
+    try {
+      const res = await login(values.username, values.password);
+      if (res.status === 201 || res.status === 200) {
+        message.success("Login success");
+
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+        navigate("/");
+      }
+    } catch (e: any) {
+      message.error(e.response?.data?.message || "please try later");
+    }
+  };
   return (
     <div id="login-container">
       <h1>Chat Room</h1>

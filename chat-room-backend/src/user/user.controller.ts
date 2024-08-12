@@ -47,7 +47,7 @@ export class UserController {
     //   subject: '注册验证码',
     //   html: `<p>你的注册验证码是 ${code}</p>`
     // });
-    return 'success';
+    return `Your register captcha is ${code}`;
   }
 
   @Post('login')
