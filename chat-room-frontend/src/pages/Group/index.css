@@ -1,7 +1,6 @@
-#menu-container {
-  display: flex;
-  flex-direction: row;
+#group-container {
+  padding: 20px;
 }
-#menu-container .menu-area {
-  width: 200px;
+#group-container .group-form {
+  margin-bottom: 30px;
 }
