@@ -38,6 +38,9 @@ export class UserController {
 
   @Get('register-captcha')
   async captcha(@Query('address') address: string) {
+    if (!address) {
+      throw new BadRequestException('邮箱地址不能为空');
+    }
     const code = Math.random().toString().slice(2, 8);
 
     await this.redisService.set(`captcha_${address}`, code, 5 * 60);
@@ -88,30 +91,26 @@ export class UserController {
   async updatePassword(@Body() passwordDto: UpdateUserPasswordDto) {
     return this.userService.updatePassword(passwordDto);
   }
-
-  @Get('update_captcha')
-  @RequireLogin()
-  async updateCaptcha(@UserInfo('userId') userId: number) {
-    const { email: address } = await this.userService.findUserDetailById(
-      userId,
-    );
-
+  @Get('update_password/captcha')
+  async updatePasswordCaptcha(@Query('address') address: string) {
+    if (!address) {
+      throw new BadRequestException('email is required');
+    }
     const code = Math.random().toString().slice(2, 8);
 
     await this.redisService.set(
-      `update_user_captcha_${address}`,
+      `update_password_captcha_${address}`,
       code,
       10 * 60,
     );
 
     // await this.emailService.sendMail({
     //   to: address,
-    //   subject: 'xxx',
-    //   html: `<p>verification code:  ${code}</p>`,
+    //   subject: '',
+    //   html: `<p> ${code}</p>`,
     // });
-    return 'send success';
+    return `Your update password captcha is ${code}`;
   }
-
   @Get('captcha')
   async getCaptcha(@Query('address') address: string) {
     if (!address) {
@@ -127,5 +126,28 @@ export class UserController {
     //   html: `<p> ${code}</p>`,
     // });
     return '发送成功';
+  }
+
+  @Get('update/captcha')
+  @RequireLogin()
+  async updateCaptcha(@UserInfo('userId') userId: number) {
+    const { email: address } = await this.userService.findUserDetailById(
+      userId,
+    );
+
+    const code = Math.random().toString().slice(2, 8);
+
+    await this.redisService.set(
+      `update_user_captcha_${address}`,
+      code,
+      10 * 60,
+    );
+
+    await this.emailService.sendMail({
+      to: address,
+      subject: '',
+      html: `<p> ${code}</p>`,
+    });
+    return `Your update user info captcha is ${code}`;
   }
 }
