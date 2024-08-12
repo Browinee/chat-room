@@ -143,11 +143,11 @@ export class UserController {
       10 * 60,
     );
 
-    await this.emailService.sendMail({
-      to: address,
-      subject: '',
-      html: `<p> ${code}</p>`,
-    });
+    // await this.emailService.sendMail({
+    //   to: address,
+    //   subject: '',
+    //   html: `<p> ${code}</p>`,
+    // });
     return `Your update user info captcha is ${code}`;
   }
 }

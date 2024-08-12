@@ -143,7 +143,9 @@ export class UserService {
     updateUserDto: UpdateUserDto,
   ) {
     console.log('email', userEmail);
-    const captcha = await this.redisService.get(`update_user_${userEmail}`);
+    const captcha = await this.redisService.get(
+      `update_user_captcha_${userEmail}`,
+    );
 
     if (!captcha) {
       throw new HttpException('invalid captcha', HttpStatus.BAD_REQUEST);
