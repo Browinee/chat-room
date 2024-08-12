@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { FriendshipService } from './friendship.service';
 import { RequireLogin, UserInfo } from 'src/common/decorators';
@@ -56,8 +57,11 @@ export class FriendshipController {
 
   @Get('/list')
   @RequireLogin()
-  async friendship(@UserInfo('userId') userId: number) {
-    return this.friendshipService.getFriendship(userId);
+  async friendship(
+    @UserInfo('userId') userId: number,
+    @Query('name') name: string,
+  ) {
+    return this.friendshipService.getFriendship(userId, name);
   }
 
   @Delete('/remove/:id')

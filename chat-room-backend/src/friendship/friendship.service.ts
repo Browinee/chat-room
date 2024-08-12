@@ -1,6 +1,6 @@
 import { FriendshipAddDto } from './dto/add-friendship.dto';
 import { Inject, Injectable } from '@nestjs/common';
-import { FriendRequestStatus } from '@prisma/client';
+import { FriendRequestStatus, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -70,10 +70,10 @@ export class FriendshipService {
         status: FriendRequestStatus.REJECTED,
       },
     });
-    return '已拒绝';
+    return 'Declined';
   }
 
-  async getFriendship(userId: number) {
+  async getFriendship(userId: number, name: string) {
     const friends = await this.prismaService.friendship.findMany({
       where: {
         OR: [
@@ -113,7 +113,9 @@ export class FriendshipService {
       res.push(user);
     }
 
-    return res;
+    return name
+      ? res.filter((item: User) => item.nickName.includes(name))
+      : res;
   }
 
   async remove(friendId: number, userId: number) {

@@ -1,7 +1,6 @@
-#menu-container {
-  display: flex;
-  flex-direction: row;
+#friendship-container {
+  padding: 20px;
 }
-#menu-container .menu-area {
-  width: 200px;
+#friendship-container .friendship-form {
+  margin-bottom: 30px;
 }
