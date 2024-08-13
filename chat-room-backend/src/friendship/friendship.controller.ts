@@ -45,6 +45,7 @@ export class FriendshipController {
   }
 
   @Get('reject/:id')
+  @RequireLogin()
   async reject(
     @Param('id') friendId: number,
     @UserInfo('userId') userId: number,

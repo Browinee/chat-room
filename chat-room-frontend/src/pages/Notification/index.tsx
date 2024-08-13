@@ -11,7 +11,11 @@ import {
 import { useForm } from "antd/es/form/Form";
 import "./index.css";
 import { useEffect, useState } from "react";
-import { friendRequestList } from "../../api/friendship";
+import {
+  agreeFriendRequest,
+  friendRequestList,
+  rejectFriendRequest,
+} from "../../api/friendship";
 import { ColumnsType } from "antd/es/table";
 
 interface User {
@@ -69,12 +73,37 @@ export function Notification() {
     queryFriendRequestList();
   }, []);
 
+  async function agree(id: number) {
+    try {
+      const res = await agreeFriendRequest(id);
+
+      if (res.status === 201 || res.status === 200) {
+        message.success("Approve");
+        queryFriendRequestList();
+      }
+    } catch (e: any) {
+      message.error(e.response?.data?.message || "Please try again later");
+    }
+  }
+
+  async function reject(id: number) {
+    try {
+      const res = await rejectFriendRequest(id);
+
+      if (res.status === 201 || res.status === 200) {
+        message.success("Reject");
+        queryFriendRequestList();
+      }
+    } catch (e: any) {
+      message.error(e.response?.data?.message || "Please try again later");
+    }
+  }
   const onChange = (key: string) => {
     console.log(key);
   };
   const toMeColumns: ColumnsType<FriendRequest> = [
     {
-      title: "用户",
+      title: "User",
       render: (_, record) => {
         return (
           <div>
@@ -84,7 +113,10 @@ export function Notification() {
         );
       },
     },
-
+    {
+      title: "Reason",
+      dataIndex: "reason",
+    },
     {
       title: "create time",
       render: (_, record) => {
@@ -93,13 +125,27 @@ export function Notification() {
     },
     {
       title: "Action",
-      render: (_, record) => (
-        <div>
-          <a href="#">Approve</a>
-          <br />
-          <a href="#">Disapprove</a>
-        </div>
-      ),
+      render: (_, record) => {
+        if (record.status === "PENDING") {
+          return (
+            <div>
+              <a href="#" onClick={() => agree(record.fromUserId)}>
+                Approve
+              </a>
+              <br />
+              <a href="#" onClick={() => reject(record.fromUserId)}>
+                Disapproved
+              </a>
+            </div>
+          );
+        } else {
+          const map: Record<string, any> = {
+            ACCEPTED: "Approved",
+            REJECTED: "Rejected",
+          };
+          return <div>{map[record.status]}</div>;
+        }
+      },
     },
   ];
   const fromMeColumns: ColumnsType<FriendRequest> = [
@@ -114,7 +160,10 @@ export function Notification() {
         );
       },
     },
-
+    {
+      title: "Reason",
+      dataIndex: "reason",
+    },
     {
       title: "create time",
       render: (_, record) => {

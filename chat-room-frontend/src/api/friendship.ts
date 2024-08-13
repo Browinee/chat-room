@@ -12,3 +12,11 @@ export async function friendAdd(data: AddFriend) {
 export async function friendRequestList() {
   return http.get("/friendship/request-list");
 }
+
+export async function agreeFriendRequest(id: number) {
+  return http.get(`/friendship/agree/${id}`);
+}
+
+export async function rejectFriendRequest(id: number) {
+  return http.get(`/friendship/reject/${id}`);
+}
