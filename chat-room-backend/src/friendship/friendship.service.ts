@@ -1,5 +1,5 @@
 import { FriendshipAddDto } from './dto/add-friendship.dto';
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { FriendRequestStatus, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -17,10 +17,33 @@ export class FriendshipService {
   }
 
   async add(friendAddDto: FriendshipAddDto, userId: number) {
+    const friend = await this.prismaService.user.findUnique({
+      where: {
+        username: friendAddDto.username,
+      },
+    });
+    if (!friend) {
+      throw new BadRequestException(`${friendAddDto.username} is not exist`);
+    }
+    if (friend.id === userId) {
+      throw new BadRequestException('cannot add self as friend');
+    }
+    const found = await this.prismaService.friendship.findMany({
+      where: {
+        userId,
+        friendId: friend.id,
+      },
+    });
+    if (found.length) {
+      throw new BadRequestException(
+        `${friendAddDto.username} is already friend`,
+      );
+    }
+
     return await this.prismaService.friendRequest.create({
       data: {
         fromUserId: userId,
-        toUserId: friendAddDto.friendId,
+        toUserId: friend.id,
         reason: friendAddDto.reason,
         status: FriendRequestStatus.PENDING,
       },

@@ -2,9 +2,9 @@ import { IsNotEmpty } from 'class-validator';
 
 export class FriendshipAddDto {
   @IsNotEmpty({
-    message: 'id is not required',
+    message: 'username is not empty',
   })
-  friendId: number;
+  username: string;
 
   reason: string;
 }

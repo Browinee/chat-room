@@ -4,6 +4,7 @@ import "./index.css";
 import { ColumnsType } from "antd/es/table";
 import { useForm } from "antd/es/form/Form";
 import { friendshipList } from "../../api/friendship";
+import { AddFriendModal } from "./AddFriendModal";
 
 interface SearchFriend {
   name: string;
@@ -21,6 +22,8 @@ export function Friendship() {
   const [friendshipResult, setFriendshipResult] = useState<
     Array<FriendshipSearchResult>
   >([]);
+
+  const [isAddFriendModalOpen, setAddFriendModalOpen] = useState(false);
 
   const columns: ColumnsType<FriendshipSearchResult> = useMemo(
     () => [
@@ -99,6 +102,15 @@ export function Friendship() {
               Search
             </Button>
           </Form.Item>
+          <Form.Item label=" ">
+            <Button
+              type="primary"
+              style={{ background: "green" }}
+              onClick={() => setAddFriendModalOpen(true)}
+            >
+              Add Friend
+            </Button>
+          </Form.Item>
         </Form>
       </div>
       <div className="friendship-table">
@@ -108,6 +120,12 @@ export function Friendship() {
           style={{ width: "1000px" }}
         />
       </div>
+      <AddFriendModal
+        isOpen={isAddFriendModalOpen}
+        handleClose={() => {
+          setAddFriendModalOpen(false);
+        }}
+      />
     </div>
   );
 }
