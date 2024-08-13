@@ -9,11 +9,60 @@ export class FriendshipService {
   private prismaService: PrismaService;
 
   async list(userId: number) {
-    return this.prismaService.friendRequest.findMany({
+    const fromMeRequest = await this.prismaService.friendRequest.findMany({
       where: {
         fromUserId: userId,
       },
     });
+    const toMeRequest = await this.prismaService.friendRequest.findMany({
+      where: {
+        toUserId: userId,
+      },
+    });
+    const res = {
+      toMe: [],
+      fromMe: [],
+    };
+    for (let i = 0; i < fromMeRequest.length; i++) {
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          id: fromMeRequest[i].toUserId,
+        },
+        select: {
+          id: true,
+          username: true,
+          nickName: true,
+          email: true,
+          headPic: true,
+          createTime: true,
+        },
+      });
+      res.fromMe.push({
+        ...fromMeRequest[i],
+        toUser: user,
+      });
+    }
+
+    for (let i = 0; i < toMeRequest.length; i++) {
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          id: toMeRequest[i].fromUserId,
+        },
+        select: {
+          id: true,
+          username: true,
+          nickName: true,
+          email: true,
+          headPic: true,
+          createTime: true,
+        },
+      });
+      res.toMe.push({
+        ...toMeRequest[i],
+        fromUser: user,
+      });
+    }
+    return res;
   }
 
   async add(friendAddDto: FriendshipAddDto, userId: number) {

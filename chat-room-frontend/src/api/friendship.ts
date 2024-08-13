@@ -8,3 +8,7 @@ export async function friendshipList(name?: string) {
 export async function friendAdd(data: AddFriend) {
   return http.post("/friendship", data);
 }
+
+export async function friendRequestList() {
+  return http.get("/friendship/request-list");
+}
