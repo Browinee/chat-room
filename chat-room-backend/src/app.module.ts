@@ -13,6 +13,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/auth.guard';
 import { FriendshipModule } from './friendship/friendship.module';
 import { ChatroomModule } from './chatroom/chatroom.module';
+import { MinioModule } from './minio/minio.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ChatroomModule } from './chatroom/chatroom.module';
     }),
     FriendshipModule,
     ChatroomModule,
+    MinioModule,
   ],
   controllers: [AppController],
   providers: [

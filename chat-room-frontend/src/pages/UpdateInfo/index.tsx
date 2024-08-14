@@ -4,7 +4,7 @@ import { useCallback, useEffect } from "react";
 import "./index.css";
 import { useNavigate } from "react-router-dom";
 import { getUserInfo, updateInfo, updateUserInfoCaptcha } from "../../api/user";
-
+import { HeadPicUpload } from "./HeadPicUpload";
 export interface UserInfo {
   headPic: string;
   nickName: string;
@@ -26,6 +26,14 @@ export function UpdateInfo() {
       const res = await updateInfo(values);
       if (res.status === 201 || res.status === 200) {
         message.success("update user info success");
+        const userInfo = localStorage.getItem("userInfo");
+        if (userInfo) {
+          const info = JSON.parse(userInfo);
+          info.headPic = values.headPic;
+          info.nickName = values.nickName;
+
+          localStorage.setItem("userInfo", JSON.stringify(info));
+        }
       }
     } catch (e: any) {
       message.error(e.response?.data?.message || "Please try again later");
@@ -69,7 +77,7 @@ export function UpdateInfo() {
           name="headPic"
           rules={[{ required: true, message: "Please enter an avatar!" }]}
         >
-          <Input />
+          <HeadPicUpload></HeadPicUpload>
         </Form.Item>
 
         <Form.Item

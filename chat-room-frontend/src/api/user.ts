@@ -12,3 +12,7 @@ export async function updateInfo(data: UserInfo) {
 export async function updateUserInfoCaptcha() {
   return await http.get("/user/update/captcha");
 }
+
+export async function presignedUrl(fileName: string) {
+  return http.get(`/minio/presignedUrl?name=${fileName}`);
+}
