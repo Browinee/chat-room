@@ -33,7 +33,7 @@ type Reply =
   | {
       type: "sendMessage";
       userId: number;
-      message: Message;
+      message: ChatHistory;
     }
   | {
       type: "joinRoom";
@@ -94,31 +94,21 @@ export function Chat() {
         chatroomId: roomId,
         userId: userInfo.id,
       };
-
       socket.emit("joinRoom", payload);
       socket.on("message", (reply: Reply) => {
-        queryChatHistoryList(roomId);
+        if (reply.type === "sendMessage") {
+          setChatHistory((chatHistory) => {
+            return chatHistory
+              ? [...chatHistory, reply.message]
+              : [reply.message];
+          });
+        }
         setTimeout(() => {
           document
             .getElementById("bottom-bar")
             ?.scrollIntoView({ block: "end" });
         }, 500);
       });
-      // socket.on("message", (reply: Reply) => {
-      //   console.log("reply", reply);
-
-      //   if (reply.type === "joinRoom") {
-      //     setMessageList((messageList) => [
-      //       ...messageList,
-      //       {
-      //         type: ChatMessageType.TEXT,
-      //         content: "user " + reply.userId + "join room",
-      //       },
-      //     ]);
-      //   } else {
-      //     setMessageList((messageList) => [...messageList, reply.message]);
-      //   }
-      // });
     });
     return () => {
       socket.disconnect();
@@ -138,7 +128,7 @@ export function Chat() {
       sendUserId: getUserInfo().id,
       chatroomId: roomId,
       message: {
-        type: ChatMessageType.TEXT,
+        type,
         content: value,
       },
     };
@@ -177,6 +167,7 @@ export function Chat() {
               data-id={item.id}
               key={item.id}
               onClick={() => {
+                queryChatHistoryList(item.id);
                 setChatroomId(item.id);
               }}
             >

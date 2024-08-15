@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { Inject } from '@nestjs/common';
 import { ChatHistoryService } from 'src/chat-history/chat-history.service';
 import { ChatMessageType } from '@prisma/client';
+import { UserService } from 'src/user/user.service';
 
 interface JoinRoomPayload {
   chatroomId: number;
@@ -28,6 +29,8 @@ interface SendMessagePayload {
 export class ChatGateway {
   constructor(private readonly chatService: ChatService) {}
   @WebSocketServer() server: Server;
+  @Inject(UserService)
+  private userService: UserService;
 
   @Inject(ChatHistoryService)
   private chatHistoryService: ChatHistoryService;
@@ -48,7 +51,7 @@ export class ChatGateway {
   async sendMessage(@MessageBody() payload: SendMessagePayload) {
     const roomName = payload.chatroomId.toString();
 
-    await this.chatHistoryService.add(payload.chatroomId, {
+    const history = await this.chatHistoryService.add(payload.chatroomId, {
       content: payload.message.content,
       type:
         payload.message.type === ChatMessageType.IMAGE
@@ -57,11 +60,17 @@ export class ChatGateway {
       chatroomId: payload.chatroomId,
       senderId: payload.sendUserId,
     });
-
+    console.log('history------------------', history);
+    const sender = await this.userService.findUserDetailById(
+      payload.sendUserId,
+    );
     this.server.to(roomName).emit('message', {
       type: 'sendMessage',
       userId: payload.sendUserId,
-      message: payload.message,
+      message: {
+        ...history,
+        sender,
+      },
     });
   }
 }
