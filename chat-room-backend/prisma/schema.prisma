@@ -63,3 +63,20 @@ model UserChatroom {
 
   @@id([userId, chatroomId])
 }
+
+//聊天紀錄： text:0、image:1、file:2
+enum ChatType {
+  TEXT
+  IMAGE
+  FILE
+}
+
+model ChatHistory {
+  id         Int      @id @default(autoincrement())
+  content    String   @db.VarChar(500)
+  type       ChatType
+  chatroomId Int
+  senderId   Int
+  createTime DateTime @default(now())
+  updateTime DateTime @updatedAt
+}
