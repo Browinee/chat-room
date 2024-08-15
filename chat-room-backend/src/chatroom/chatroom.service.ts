@@ -62,9 +62,7 @@ export class ChatroomService {
         id: {
           in: chatroomIds.map((item) => item.chatroomId),
         },
-        name: {
-          contains: name,
-        },
+        ...(name && name.trim() !== '' ? { name: { contains: name } } : {}),
       },
       select: {
         id: true,

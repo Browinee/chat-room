@@ -64,7 +64,6 @@ model UserChatroom {
   @@id([userId, chatroomId])
 }
 
-//聊天紀錄： text:0、image:1、file:2
 enum ChatMessageType {
   TEXT
   IMAGE
