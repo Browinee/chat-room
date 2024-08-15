@@ -6,6 +6,9 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { Server, Socket } from 'socket.io';
+import { Inject } from '@nestjs/common';
+import { ChatHistoryService } from 'src/chat-history/chat-history.service';
+import { ChatMessageType } from '@prisma/client';
 
 interface JoinRoomPayload {
   chatroomId: number;
@@ -16,7 +19,7 @@ interface SendMessagePayload {
   sendUserId: number;
   chatroomId: number;
   message: {
-    type: 'text' | 'image';
+    type: ChatMessageType;
     content: string;
   };
 }
@@ -25,6 +28,9 @@ interface SendMessagePayload {
 export class ChatGateway {
   constructor(private readonly chatService: ChatService) {}
   @WebSocketServer() server: Server;
+
+  @Inject(ChatHistoryService)
+  private chatHistoryService: ChatHistoryService;
 
   @SubscribeMessage('joinRoom')
   joinRoom(client: Socket, payload: JoinRoomPayload): void {
@@ -39,8 +45,18 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('sendMessage')
-  sendMessage(@MessageBody() payload: SendMessagePayload): void {
+  async sendMessage(@MessageBody() payload: SendMessagePayload) {
     const roomName = payload.chatroomId.toString();
+
+    await this.chatHistoryService.add(payload.chatroomId, {
+      content: payload.message.content,
+      type:
+        payload.message.type === ChatMessageType.IMAGE
+          ? ChatMessageType.IMAGE
+          : ChatMessageType.TEXT,
+      chatroomId: payload.chatroomId,
+      senderId: payload.sendUserId,
+    });
 
     this.server.to(roomName).emit('message', {
       type: 'sendMessage',

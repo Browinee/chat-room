@@ -65,18 +65,18 @@ model UserChatroom {
 }
 
 //聊天紀錄： text:0、image:1、file:2
-enum ChatType {
+enum ChatMessageType {
   TEXT
   IMAGE
   FILE
 }
 
 model ChatHistory {
-  id         Int      @id @default(autoincrement())
-  content    String   @db.VarChar(500)
-  type       ChatType
+  id         Int             @id @default(autoincrement())
+  content    String          @db.VarChar(500)
+  type       ChatMessageType
   chatroomId Int
   senderId   Int
-  createTime DateTime @default(now())
-  updateTime DateTime @updatedAt
+  createTime DateTime        @default(now())
+  updateTime DateTime        @updatedAt
 }
