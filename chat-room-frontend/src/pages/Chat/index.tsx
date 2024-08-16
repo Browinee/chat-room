@@ -7,6 +7,7 @@ import { UserInfo } from "../UpdateInfo";
 import React from "react";
 import TextArea from "antd/es/input/TextArea";
 import { getUserInfo } from "./utils";
+import { useLocation } from "react-router-dom";
 
 interface JoinRoomPayload {
   chatroomId: number;
@@ -157,13 +158,20 @@ export function Chat() {
 
   const [inputText, setInputText] = useState("");
 
+  const location = useLocation();
+  useEffect(() => {
+    setChatroomId(location.state?.chatroomId);
+  }, [location.state?.chatroomId]);
+
   return (
     <div id="chat-container">
       <div className="chat-room-list">
         {roomList?.map((item) => {
           return (
             <div
-              className="chat-room-item"
+              className={`chat-room-item ${
+                item.id === roomId ? "selected" : ""
+              }`}
               data-id={item.id}
               key={item.id}
               onClick={() => {

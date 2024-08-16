@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   Param,
@@ -16,7 +17,7 @@ export class ChatroomController {
 
   @Post('create-one-to-one')
   async oneToOne(
-    @Query('friendId') friendId: number,
+    @Body('friendId') friendId: number,
     @UserInfo('userId') userId: number,
   ) {
     if (!friendId) {
@@ -74,5 +75,16 @@ export class ChatroomController {
       throw new BadRequestException('quitUserId can not be empty');
     }
     return this.chatroomService.quit(id, quitUserId);
+  }
+
+  @Get('findChatroom')
+  async findChatroom(
+    @Query('userId1') userId1: string,
+    @Query('userId2') userId2: string,
+  ) {
+    if (!userId1 || !userId2) {
+      throw new BadRequestException('userId1 and userId2 can not be empty');
+    }
+    return this.chatroomService.queryOneToOneChatroom(+userId1, +userId2);
   }
 }

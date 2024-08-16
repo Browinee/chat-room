@@ -5,6 +5,9 @@ import { ColumnsType } from "antd/es/table";
 import { useForm } from "antd/es/form/Form";
 import { friendshipList } from "../../api/friendship";
 import { AddFriendModal } from "./AddFriendModal";
+import { getUserInfo } from "../Chat/utils";
+import { createOneToOne, findChatroom } from "../../api/chatroom";
+import { useNavigate } from "react-router-dom";
 
 interface SearchFriend {
   name: string;
@@ -24,6 +27,29 @@ export function Friendship() {
   >([]);
 
   const [isAddFriendModalOpen, setAddFriendModalOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const goToChat = async (friendId: number) => {
+    const userId = getUserInfo().id;
+    try {
+      const res = await findChatroom(userId, friendId);
+      if (res.data) {
+        // NOTE: 這裡是用state 而不是放到url中
+        navigate("/chat", {
+          state: {
+            chatroomId: res.data,
+          },
+        });
+      } else {
+        const res2 = await createOneToOne(friendId);
+        navigate("/chat", {
+          state: {
+            chatroomId: res2.data,
+          },
+        });
+      }
+    } catch (error) {}
+  };
 
   const columns: ColumnsType<FriendshipSearchResult> = useMemo(
     () => [
@@ -48,7 +74,14 @@ export function Friendship() {
         title: "Action",
         render: (_, record) => (
           <div>
-            <a href="#">Chat</a>
+            <a
+              href="#"
+              onClick={() => {
+                goToChat(record.id);
+              }}
+            >
+              Chat
+            </a>
           </div>
         ),
       },
