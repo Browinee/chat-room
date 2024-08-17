@@ -56,7 +56,9 @@ export class ChatGateway {
       type:
         payload.message.type === ChatMessageType.IMAGE
           ? ChatMessageType.IMAGE
-          : ChatMessageType.TEXT,
+          : payload.message.type === ChatMessageType.TEXT
+          ? ChatMessageType.TEXT
+          : ChatMessageType.FILE,
       chatroomId: payload.chatroomId,
       senderId: payload.sendUserId,
     });

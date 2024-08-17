@@ -3,25 +3,19 @@ import { message } from "antd";
 import Dragger, { DraggerProps } from "antd/es/upload/Dragger";
 import axios from "axios";
 import { presignedUrl } from "../../api/user";
+import { ChatMessageType } from "../../enum";
 
-interface HeadPicUploadProps {
+interface FileUploadProps {
   value?: string;
   onChange?: Function;
+  type: ChatMessageType.FILE | ChatMessageType.IMAGE;
 }
+
 let onChange: Function;
+
 const props: DraggerProps = {
   name: "file",
-  onChange(info) {
-    const { status } = info.file;
-    if (status === "done") {
-      onChange("http://localhost:9000/avatar/" + info.file.name);
-      message.success(`${info.file.name} upload success`);
-    } else if (status === "error") {
-      message.error(`${info.file.name} upload failed`);
-    }
-  },
   action: async (file) => {
-    console.log("action", file);
     const res = await presignedUrl(file.name);
     return res.data;
   },
@@ -32,6 +26,15 @@ const props: DraggerProps = {
 
     onSuccess!(res.data);
   },
+  onChange(info) {
+    const { status } = info.file;
+    if (status === "done") {
+      onChange("http://localhost:9000/avatar/" + info.file.name);
+      message.success(`${info.file.name} file uploaded`);
+    } else if (status === "error") {
+      message.error(`${info.file.name} file upload failed`);
+    }
+  },
 };
 
 const dragger = (
@@ -39,15 +42,20 @@ const dragger = (
     <p className="ant-upload-drag-icon">
       <InboxOutlined />
     </p>
-    <p className="ant-upload-text">Please click or drag to upload file</p>
+    <p className="ant-upload-text">click or drag file to this area to upload</p>
   </Dragger>
 );
 
-export function HeadPicUpload(props: HeadPicUploadProps) {
+export function FileUpload(props: FileUploadProps) {
   onChange = props.onChange!;
+
   return props?.value ? (
     <div>
-      <img src={props.value} alt="Avatar" width="100" height="100" />
+      {props.type === ChatMessageType.IMAGE ? (
+        <img src={props.value} alt="image" width="100" height="100" />
+      ) : (
+        props.value
+      )}
       {dragger}
     </div>
   ) : (
