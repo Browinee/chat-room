@@ -1,16 +1,16 @@
-import { Button, Input, message } from "antd";
-import { useEffect, useRef, useState } from "react";
-import { io, Socket } from "socket.io-client";
-import "./index.css";
-import { chatHistoryList, chatroomList } from "../../api/chatroom";
-import { UserInfo } from "../UpdateInfo";
-import React from "react";
+import { Button, Popover } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { getUserInfo } from "./utils";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { io, Socket } from "socket.io-client";
 import { ChatMessageType } from "../../enum";
-import { Chatroom, useGetChatHistory } from "./useGetChatHistory";
+import { UserInfo } from "../UpdateInfo";
+import "./index.css";
+import { useGetChatHistory } from "./useGetChatHistory";
 import { useGetChatRooms } from "./useGetChatRooms";
+import { getUserInfo } from "./utils";
+import EmojiPicker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
 
 interface JoinRoomPayload {
   chatroomId: number;
@@ -164,7 +164,7 @@ export function Chat() {
       <div className="message-input">
         <div className="message-type">
           <div className="message-type-item" key={1}>
-            {/* <Popover
+            <Popover
               content={
                 <EmojiPicker
                   data={data}
@@ -174,10 +174,10 @@ export function Chat() {
                 />
               }
               title="Title"
-              trigger="click"
+              // trigger="click"
             >
-              表情
-            </Popover> */}
+              Emoji
+            </Popover>
           </div>
           <div
             className="message-type-item"
