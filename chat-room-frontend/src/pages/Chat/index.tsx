@@ -8,6 +8,9 @@ import React from "react";
 import TextArea from "antd/es/input/TextArea";
 import { getUserInfo } from "./utils";
 import { useLocation } from "react-router-dom";
+import { ChatMessageType } from "../../enum";
+import { Chatroom, useGetChatHistory } from "./useGetChatHistory";
+import { useGetChatRooms } from "./useGetChatRooms";
 
 interface JoinRoomPayload {
   chatroomId: number;
@@ -18,11 +21,6 @@ interface SendMessagePayload {
   sendUserId: number;
   chatroomId: number;
   message: Message;
-}
-const enum ChatMessageType {
-  TEXT = "TEXT",
-  IMAGE = "IMAGE",
-  FILE = "FILE",
 }
 
 interface Message {
@@ -40,11 +38,7 @@ type Reply =
       type: "joinRoom";
       userId: number;
     };
-interface Chatroom {
-  id: number;
-  name: string;
-  createTime: Date;
-}
+
 interface ChatHistory {
   id: number;
   content: string;
@@ -58,37 +52,19 @@ interface ChatHistory {
 export function Chat() {
   const [messageList, setMessageList] = useState<Array<Message>>([]);
   const socketRef = useRef<Socket>();
-  const [roomList, setRoomList] = useState<Array<Chatroom>>();
   const userInfo = getUserInfo();
   const [isUploadModalOpen, setUploadModalOpen] = useState(false);
   const [roomId, setChatroomId] = useState<number>();
 
-  async function queryChatroomList() {
-    try {
-      const res = await chatroomList();
+  const { roomList, queryChatroomList } = useGetChatRooms();
+  const { chatHistory, queryChatHistoryList, setChatHistory } =
+    useGetChatHistory();
 
-      if (res.status === 201 || res.status === 200) {
-        setRoomList(
-          res.data.map((item: Chatroom) => {
-            return {
-              ...item,
-              key: item.id,
-            };
-          })
-        );
-      }
-    } catch (e: any) {
-      message.error(e.response?.data?.message || "Please try again later");
-    }
-  }
-
-  useEffect(() => {
-    queryChatroomList();
-  }, []);
   useEffect(() => {
     if (!roomId) {
       return;
     }
+    queryChatHistoryList(roomId);
     const socket = (socketRef.current = io("http://localhost:3009"));
     socket.on("connect", function () {
       const payload: JoinRoomPayload = {
@@ -135,25 +111,6 @@ export function Chat() {
     };
 
     socketRef.current?.emit("sendMessage", payload);
-  }
-  const [chatHistory, setChatHistory] = useState<Array<ChatHistory>>();
-  async function queryChatHistoryList(chatroomId: number) {
-    try {
-      const res = await chatHistoryList(chatroomId);
-
-      if (res.status === 201 || res.status === 200) {
-        setChatHistory(
-          res.data.map((item: Chatroom) => {
-            return {
-              ...item,
-              key: item.id,
-            };
-          })
-        );
-      }
-    } catch (e: any) {
-      message.error(e.response?.data?.message || "Please try again later");
-    }
   }
 
   const [inputText, setInputText] = useState("");
