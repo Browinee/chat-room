@@ -1,6 +1,6 @@
 import data from "@emoji-mart/data";
 import EmojiPicker from "@emoji-mart/react";
-import { Button, Popover } from "antd";
+import { Button, message, Popover } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -12,6 +12,7 @@ import { UploadModal } from "./UploadModal";
 import { useGetChatHistory } from "./useGetChatHistory";
 import { useGetChatRooms } from "./useGetChatRooms";
 import { getUserInfo } from "./utils";
+import { favoriteAdd } from "../../api/favorite";
 
 interface JoinRoomPayload {
   chatroomId: number;
@@ -122,6 +123,19 @@ export function Chat() {
   const [uploadType, setUploadType] = useState<
     ChatMessageType.FILE | ChatMessageType.IMAGE
   >(ChatMessageType.FILE);
+
+  async function addToFavorite(chatHistoryId: number) {
+    try {
+      const res = await favoriteAdd(chatHistoryId);
+
+      if (res.status === 201 || res.status === 200) {
+        message.success("add to favorite");
+      }
+    } catch (e: any) {
+      message.error(e.response?.data?.message || "Please try again later");
+    }
+  }
+
   return (
     <div id="chat-container">
       <div className="chat-room-list">
@@ -152,6 +166,9 @@ export function Chat() {
               }`}
               data-id={item.id}
               key={item.id}
+              onDoubleClick={() => {
+                addToFavorite(item.id);
+              }}
             >
               <div className="message-sender">
                 <img src={item.sender.headPic} />
