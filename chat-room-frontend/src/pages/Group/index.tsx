@@ -7,6 +7,7 @@ import "./index.css";
 import { MembersModal } from "./MembersModal";
 import { useNavigate } from "react-router-dom";
 import { AddMemberModal } from "./AddMemberModal";
+import { CreateGroupModal } from "./CreateGroupModal";
 
 interface SearchGroup {
   name: string;
@@ -28,6 +29,9 @@ export function Group() {
   const [chatroomId, setChatroomId] = useState<number>(-1);
   const navigate = useNavigate();
   const [queryKey, setQueryKey] = useState("");
+
+  const [isCreateGroupModalOpen, setCreateGroupModalOpen] = useState(false);
+
   const columns: ColumnsType<GroupSearchResult> = useMemo(
     () => [
       {
@@ -141,6 +145,15 @@ export function Group() {
               Search
             </Button>
           </Form.Item>
+          <Form.Item label=" ">
+            <Button
+              type="primary"
+              style={{ background: "green" }}
+              onClick={() => setCreateGroupModalOpen(true)}
+            >
+              create group chat
+            </Button>
+          </Form.Item>
         </Form>
       </div>
       <div className="group-table">
@@ -168,6 +181,16 @@ export function Group() {
           });
         }}
         chatroomId={chatroomId}
+      />
+      <CreateGroupModal
+        isOpen={isCreateGroupModalOpen}
+        handleClose={() => {
+          setCreateGroupModalOpen(false);
+
+          searchGroup({
+            name: form.getFieldValue("name"),
+          });
+        }}
       />
     </div>
   );

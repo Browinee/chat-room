@@ -27,7 +27,7 @@ export class ChatroomController {
   }
 
   @Post('create-group')
-  async group(@Query('name') name: string, @UserInfo('userId') userId: number) {
+  async group(@Body('name') name: string, @UserInfo('userId') userId: number) {
     return this.chatroomService.createGroupChatroom(name, userId);
   }
 

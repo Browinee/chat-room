@@ -14,3 +14,8 @@ export async function addMember(chatroomId: number, joinUsername: string) {
     },
   });
 }
+export async function createGroup(name: string) {
+  return http.post(`/chatroom/create-group`, {
+    name,
+  });
+}
