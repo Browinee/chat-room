@@ -14,7 +14,7 @@ export async function friendRequestList() {
 }
 
 export async function agreeFriendRequest(id: number) {
-  return http.get(`/friendship/agree/${id}`);
+  return http.put(`/friendship/agree/${id}`);
 }
 
 export async function rejectFriendRequest(id: number) {

@@ -100,12 +100,10 @@ export class FriendshipService {
   }
 
   async agree(friendId: number, userId: number) {
-    console.log('friend', { friendId, userId });
-
     await this.prismaService.friendRequest.updateMany({
       where: {
-        fromUserId: userId,
-        toUserId: friendId,
+        fromUserId: friendId,
+        toUserId: userId,
         status: FriendRequestStatus.PENDING,
       },
       data: {
@@ -128,7 +126,7 @@ export class FriendshipService {
         },
       });
     }
-    return '添加成功';
+    return 'approve';
   }
 
   async reject(friendId: number, userId: number) {

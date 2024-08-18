@@ -125,7 +125,7 @@ export class UserController {
     //   subject: '',
     //   html: `<p> ${code}</p>`,
     // });
-    return '发送成功';
+    return `Captcha is ${code}`;
   }
 
   @Get('update/captcha')
