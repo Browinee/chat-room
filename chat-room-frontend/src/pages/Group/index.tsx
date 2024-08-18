@@ -1,9 +1,10 @@
-import { Badge, Button, Form, Input, Popconfirm, Table, message } from "antd";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import "./index.css";
-import { ColumnsType } from "antd/es/table";
+import { Button, Form, Input, Table, message } from "antd";
 import { useForm } from "antd/es/form/Form";
+import { ColumnsType } from "antd/es/table";
+import { useEffect, useMemo, useState } from "react";
 import { chatroomList } from "../../api/chatroom";
+import "./index.css";
+import { MembersModal } from "./MembersModal";
 
 interface SearchGroup {
   name: string;
@@ -13,10 +14,15 @@ interface GroupSearchResult {
   id: number;
   name: string;
   createTime: Date;
+  type: boolean;
+  userCount: number;
+  userIds: number[];
 }
 
 export function Group() {
   const [groupResult, setGroupResult] = useState<Array<GroupSearchResult>>([]);
+  const [isMembersModalOpen, setMembersModalOpen] = useState(false);
+  const [chatroomId, setChatroomId] = useState<number>(-1);
 
   const columns: ColumnsType<GroupSearchResult> = useMemo(
     () => [
@@ -24,15 +30,34 @@ export function Group() {
         title: "name",
         dataIndex: "name",
       },
+
       {
         title: "creation time",
         dataIndex: "createTime",
+        render: (_, record) => {
+          return new Date(record.createTime).toLocaleString();
+        },
       },
+      {
+        title: "users count",
+        dataIndex: "userCount",
+      },
+
       {
         title: "Action",
         render: (_, record) => (
           <div>
-            <a href="#">Chat</a>
+            <a href="#">Chat </a>
+            <a
+              href="#"
+              onClick={() => {
+                setChatroomId(record.id);
+                setMembersModalOpen(true);
+              }}
+            >
+              {" "}
+              Detail
+            </a>
           </div>
         ),
       },
@@ -46,12 +71,16 @@ export function Group() {
 
       if (res.status === 201 || res.status === 200) {
         setGroupResult(
-          res.data.map((item: GroupSearchResult) => {
-            return {
-              ...item,
-              key: item.id,
-            };
-          })
+          res.data
+            .filter((item: GroupSearchResult) => {
+              return item.type === true;
+            })
+            .map((item: GroupSearchResult) => {
+              return {
+                ...item,
+                key: item.id,
+              };
+            })
         );
       }
     } catch (e: any) {
@@ -95,6 +124,13 @@ export function Group() {
           style={{ width: "1000px" }}
         />
       </div>
+      <MembersModal
+        isOpen={isMembersModalOpen}
+        handleClose={() => {
+          setMembersModalOpen(false);
+        }}
+        chatroomId={chatroomId}
+      />
     </div>
   );
 }

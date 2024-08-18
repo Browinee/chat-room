@@ -54,6 +54,14 @@ export function Friendship() {
   const columns: ColumnsType<FriendshipSearchResult> = useMemo(
     () => [
       {
+        title: "ID",
+        dataIndex: "id",
+      },
+      {
+        title: "username",
+        dataIndex: "username",
+      },
+      {
         title: "nickName",
         dataIndex: "nickName",
       },
