@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { chatroomList } from "../../api/chatroom";
 import "./index.css";
 import { MembersModal } from "./MembersModal";
+import { useNavigate } from "react-router-dom";
 
 interface SearchGroup {
   name: string;
@@ -23,7 +24,7 @@ export function Group() {
   const [groupResult, setGroupResult] = useState<Array<GroupSearchResult>>([]);
   const [isMembersModalOpen, setMembersModalOpen] = useState(false);
   const [chatroomId, setChatroomId] = useState<number>(-1);
-
+  const navigate = useNavigate();
   const columns: ColumnsType<GroupSearchResult> = useMemo(
     () => [
       {
@@ -47,7 +48,18 @@ export function Group() {
         title: "Action",
         render: (_, record) => (
           <div>
-            <a href="#">Chat </a>
+            <a
+              href=""
+              onClick={() => {
+                navigate("/chat", {
+                  state: {
+                    chatroomId: record.id,
+                  },
+                });
+              }}
+            >
+              Chat{" "}
+            </a>
             <a
               href="#"
               onClick={() => {
