@@ -7,3 +7,10 @@ export async function groupMembers(chatroomId: number) {
     },
   });
 }
+export async function addMember(chatroomId: number, joinUsername: string) {
+  return http.get(`/chatroom/join/${chatroomId}`, {
+    params: {
+      joinUsername,
+    },
+  });
+}

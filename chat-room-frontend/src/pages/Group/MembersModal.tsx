@@ -7,6 +7,7 @@ export interface MembersModalProps {
   isOpen: boolean;
   chatroomId: number;
   handleClose: () => void;
+  queryKey: string;
 }
 
 interface User {
@@ -43,7 +44,7 @@ export function MembersModal(props: MembersModalProps) {
     if (props.chatroomId !== -1) {
       queryMembers();
     }
-  }, [props.chatroomId]);
+  }, [props.chatroomId, props.queryKey]);
 
   const columns: ColumnsType<User> = [
     {

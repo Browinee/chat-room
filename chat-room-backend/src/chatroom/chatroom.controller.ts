@@ -56,14 +56,17 @@ export class ChatroomController {
   }
 
   @Get('join/:id')
-  async join(@Param('id') id: number, @Query('joinUserId') joinUserId: number) {
+  async join(
+    @Param('id') id: number,
+    @Query('joinUsername') joinUsername: string,
+  ) {
     if (!id) {
       throw new BadRequestException('id can not be empty');
     }
-    if (!joinUserId) {
-      throw new BadRequestException('joinUserId can not be empty');
+    if (!joinUsername) {
+      throw new BadRequestException('joinUsername can not be empty');
     }
-    return this.chatroomService.join(id, joinUserId);
+    return this.chatroomService.join(id, joinUsername);
   }
 
   @Get('quit/:id')

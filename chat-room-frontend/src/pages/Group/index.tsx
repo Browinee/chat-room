@@ -6,6 +6,7 @@ import { chatroomList } from "../../api/chatroom";
 import "./index.css";
 import { MembersModal } from "./MembersModal";
 import { useNavigate } from "react-router-dom";
+import { AddMemberModal } from "./AddMemberModal";
 
 interface SearchGroup {
   name: string;
@@ -23,8 +24,10 @@ interface GroupSearchResult {
 export function Group() {
   const [groupResult, setGroupResult] = useState<Array<GroupSearchResult>>([]);
   const [isMembersModalOpen, setMembersModalOpen] = useState(false);
+  const [isMemberAddModalOpen, setMemberAddModalOpen] = useState(false);
   const [chatroomId, setChatroomId] = useState<number>(-1);
   const navigate = useNavigate();
+  const [queryKey, setQueryKey] = useState("");
   const columns: ColumnsType<GroupSearchResult> = useMemo(
     () => [
       {
@@ -60,6 +63,7 @@ export function Group() {
             >
               Chat{" "}
             </a>
+            &nbsp;
             <a
               href="#"
               onClick={() => {
@@ -69,6 +73,16 @@ export function Group() {
             >
               {" "}
               Detail
+            </a>
+            &nbsp; &nbsp;
+            <a
+              href="#"
+              onClick={() => {
+                setChatroomId(record.id);
+                setMemberAddModalOpen(true);
+              }}
+            >
+              Add memeber
             </a>
           </div>
         ),
@@ -137,9 +151,21 @@ export function Group() {
         />
       </div>
       <MembersModal
+        queryKey={queryKey}
         isOpen={isMembersModalOpen}
         handleClose={() => {
           setMembersModalOpen(false);
+        }}
+        chatroomId={chatroomId}
+      />
+      <AddMemberModal
+        isOpen={isMemberAddModalOpen}
+        handleClose={() => {
+          setMemberAddModalOpen(false);
+          setQueryKey(Math.random().toString().slice(2, 10));
+          searchGroup({
+            name: form.getFieldValue("name"),
+          });
         }}
         chatroomId={chatroomId}
       />

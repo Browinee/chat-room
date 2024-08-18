@@ -139,7 +139,7 @@ export class ChatroomService {
       users: members,
     };
   }
-  async join(chatroomId: number, joinUserId: number) {
+  async join(chatroomId: number, joinUsername: string) {
     const chatroom = await this.prismaService.chatroom.findUnique({
       where: {
         id: chatroomId,
@@ -149,15 +149,25 @@ export class ChatroomService {
     if (chatroom.type === false) {
       throw new BadRequestException('one-to-one chatroom can not be joined');
     }
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        username: joinUsername,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('user not exist');
+    }
+
     const memebers = await this.members(chatroomId);
-    const userIds = memebers.map((item) => item.id);
-    if (userIds.includes(joinUserId)) {
+    const usernames = memebers.map((item) => item.username);
+    if (usernames.includes(joinUsername)) {
       throw new BadRequestException('user already in chatroom');
     }
 
     await this.prismaService.userChatroom.create({
       data: {
-        userId: joinUserId,
+        userId: user.id,
         chatroomId,
       },
     });
