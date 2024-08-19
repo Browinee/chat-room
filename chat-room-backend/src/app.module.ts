@@ -17,9 +17,16 @@ import { MinioModule } from './minio/minio.module';
 import { ChatModule } from './chat/chat.module';
 import { ChatHistoryModule } from './chat-history/chat-history.module';
 import { FavoriteModule } from './favorite/favorite.module';
+import configuration from './config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      cache: true,
+      load: [configuration],
+      isGlobal: true,
+    }),
     PrismaModule,
     UserModule,
     I18nModule.forRoot({
@@ -37,11 +44,13 @@ import { FavoriteModule } from './favorite/favorite.module';
     EmailModule,
     JwtModule.registerAsync({
       global: true,
-      useFactory() {
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory(config: ConfigService) {
         return {
-          secret: 'guang',
+          secret: config.get('jwt.secretkey'),
           signOptions: {
-            expiresIn: '30m', // 默认 30 分钟
+            expiresIn: config.get('jwt.expiresin'),
           },
         };
       },
