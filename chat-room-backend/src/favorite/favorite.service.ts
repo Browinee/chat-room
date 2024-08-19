@@ -9,7 +9,7 @@ export class FavoriteService {
   async list(userId: number) {
     const favorites = await this.prismaService.favorite.findMany({
       where: {
-        userId: userId,
+        userId,
       },
     });
     const res: any[] = [];
