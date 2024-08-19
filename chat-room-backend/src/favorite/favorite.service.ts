@@ -37,7 +37,7 @@ export class FavoriteService {
   }
 
   async del(id: number) {
-    return this.prismaService.favorite.deleteMany({
+    return this.prismaService.favorite.delete({
       where: {
         id,
       },

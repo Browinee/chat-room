@@ -2,13 +2,14 @@ import { Table, message, Popconfirm } from "antd";
 import { useEffect, useState } from "react";
 import { ColumnsType } from "antd/es/table";
 import { favoriteDel, queryFavoriteList } from "../../api/favorite";
+import { ChatMessageType } from "../../enum";
 
 interface Favorite {
   id: number;
   chatHistory: {
     id: number;
     content: string;
-    type: number;
+    type: ChatMessageType;
     createTime: Date;
   };
 }
@@ -25,9 +26,9 @@ export function Collection() {
       title: "content",
       render: (_, record) => (
         <div>
-          {record.chatHistory.type === 0 ? (
+          {record.chatHistory.type === ChatMessageType.TEXT ? (
             record.chatHistory.content
-          ) : record.chatHistory.type === 1 ? (
+          ) : record.chatHistory.type === ChatMessageType.IMAGE ? (
             <img src={record.chatHistory.content} style={{ maxHeight: 200 }} />
           ) : (
             <a href={record.chatHistory.content} download>
